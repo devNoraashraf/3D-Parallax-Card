@@ -8,9 +8,9 @@ class BackgroundLayer extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      child: Image.asset(
-        'assets/imgs/p1.png', 
-        fit: BoxFit.cover, 
+      child: Transform.scale(
+        scale: 1.1,
+        child: Image.asset('assets/imgs/p1.png', fit: BoxFit.cover),
       ),
     );
   }
