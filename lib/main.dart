@@ -4,11 +4,19 @@ import 'widgets/glass_card.dart';
 import 'widgets/background_layer.dart';
 
 void main() => runApp(
-  const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: CombinedGyroTouchCard(),
-  ),
-);
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: CombinedGyroTouchCard(),
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: Colors.black,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+          ),
+        ),
+      ),
+    );
 
 class CombinedGyroTouchCard extends StatefulWidget {
   const CombinedGyroTouchCard({super.key});
@@ -21,6 +29,7 @@ class _CombinedGyroTouchCardState extends State<CombinedGyroTouchCard> {
   double gyroX = 0, gyroY = 0;
 
   double touchX = 0, touchY = 0;
+  bool _entered = false;
 
   @override
   void initState() {
@@ -38,11 +47,18 @@ class _CombinedGyroTouchCardState extends State<CombinedGyroTouchCard> {
         gyroY *= 0.98;
       });
     });
+
+    // small entrance animation for nicer screenshot composition
+    Future.delayed(const Duration(milliseconds: 220), () {
+      if (!mounted) return;
+      setState(() => _entered = true);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+   
       body: Stack(
         children: [
           const BackgroundLayer(),
@@ -55,16 +71,40 @@ class _CombinedGyroTouchCardState extends State<CombinedGyroTouchCard> {
               });
             },
             child: Center(
-              child: Transform(
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.002)
-                  ..rotateX(gyroX + touchX)
-                  ..rotateY(gyroY + touchY),
-                alignment: FractionalOffset.center,
-                child: const GlassCard(
-                  cardHolder: "NORA ASHRAF",
-                  cardNumber: "FLUTTER DEVELOPER",
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedScale(
+                    scale: _entered ? 1.0 : 0.92,
+                    duration: const Duration(milliseconds: 420),
+                    curve: Curves.easeOutBack,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 420),
+                      opacity: _entered ? 1 : 0,
+                      child: Transform(
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.002)
+                          ..rotateX(gyroX + touchX)
+                          ..rotateY(gyroY + touchY),
+                        alignment: FractionalOffset.center,
+                        child: const GlassCard(
+                          cardHolder: "NORA ASHRAF",
+                          cardNumber: "FLUTTER DEVELOPER",
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+                  Text(
+                    'NORA ASHRAF — Flutter Developer',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.85),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.6,
+                        ),
+                  ),
+                ],
               ),
             ),
           ),
